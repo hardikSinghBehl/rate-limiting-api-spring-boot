@@ -17,13 +17,17 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PricingPlanService {
+public class RateLimitingService {
 
     private final Map<UUID, Bucket> bucketCache = new ConcurrentHashMap<UUID, Bucket>();
     private final UserPlanMappingRepository userPlanMappingRepository;
 
-    public Bucket resolveBucket(UUID userId) {
+    public Bucket resolveBucket(final UUID userId) {
         return bucketCache.computeIfAbsent(userId, this::newBucket);
+    }
+
+    public void deleteIfExists(final UUID userId) {
+        bucketCache.remove(userId);
     }
 
     private Bucket newBucket(UUID userId) {

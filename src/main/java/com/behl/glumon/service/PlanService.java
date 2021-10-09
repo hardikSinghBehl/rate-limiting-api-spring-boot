@@ -26,6 +26,7 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final UserRepository userRepository;
     private final UserPlanMappingRepository userPlanMappingRepository;
+    private final RateLimitingService rateLimitingService;
 
     public ResponseEntity<List<PlanResponseDto>> allPlansInSystemRetreivalHandler() {
         return ResponseEntity
@@ -53,6 +54,7 @@ public class PlanService {
         userPlanMapping.setIsActive(true);
         userPlanMappingRepository.save(userPlanMapping);
 
+        rateLimitingService.deleteIfExists(user.getId());
         return ResponseEntity.ok().build();
     }
 

@@ -12,9 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.behl.glumon.repository.UserPlanMappingRepository;
 import com.behl.glumon.repository.UserRepository;
-import com.behl.glumon.service.PricingPlanService;
+import com.behl.glumon.service.RateLimitingService;
 
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
@@ -25,8 +24,7 @@ import lombok.AllArgsConstructor;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
-    private final UserPlanMappingRepository userPlanMappingRepository;
-    private final PricingPlanService pricingPlanService;
+    private final RateLimitingService rateLimitingService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -35,7 +33,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         if (authentication != null) {
             final var loggedInUser = userRepository.findByEmailId(authentication.getName()).get();
-            final Bucket tokenBucket = pricingPlanService.resolveBucket(loggedInUser.getId());
+            final Bucket tokenBucket = rateLimitingService.resolveBucket(loggedInUser.getId());
             final ConsumptionProbe probe = tokenBucket.tryConsumeAndReturnRemaining(1);
 
             if (!probe.isConsumed()) {
