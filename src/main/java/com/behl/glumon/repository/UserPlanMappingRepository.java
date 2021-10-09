@@ -1,5 +1,6 @@
 package com.behl.glumon.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,7 @@ public interface UserPlanMappingRepository extends JpaRepository<UserPlanMapping
     @Modifying
     @Query(nativeQuery = true, value = "UPDATE user_plan_mappings SET is_active = false WHERE user_id = ?1")
     void invalidatePreviousPlans(final UUID user);
+
+    Optional<UserPlanMapping> findByUserIdAndIsActive(final UUID userId, final Boolean isActives);
 
 }

@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.behl.glumon.security.CustomUserDetailService;
 import com.behl.glumon.security.constant.ApiPathExclusion;
 import com.behl.glumon.security.filter.JwtAuthenticationFilter;
+import com.behl.glumon.security.filter.RateLimitFilter;
 
 import lombok.AllArgsConstructor;
 
@@ -23,6 +24,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final CustomUserDetailService customUserDetialService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -37,7 +39,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(List.of(ApiPathExclusion.values()).stream().map(apiPath -> apiPath.getPath())
                         .toArray(String[]::new))
                 .permitAll().anyRequest().authenticated().and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class);
     }
 
 }
