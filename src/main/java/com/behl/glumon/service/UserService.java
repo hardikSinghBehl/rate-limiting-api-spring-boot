@@ -57,7 +57,7 @@ public class UserService {
         final User user = userRepository.findByEmailId(userLoginRequestDto.getEmailId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials"));
 
-        if (passwordEncoder.matches(userLoginRequestDto.getPassword(), user.getPassword()))
+        if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), user.getPassword()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid login credentials");
 
         return ResponseEntity.ok(UserLoginSuccessDto.builder().jwt(jwtUtils.generateToken(user)).build());

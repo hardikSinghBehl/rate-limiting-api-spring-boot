@@ -12,7 +12,7 @@ public enum ApiPathExclusion {
     SWAGGER_RESOURCES_SECURITY_CONFIGURATION("/swagger-resources/configuration/security"),
     SWAGGER_UI_HTML("swagger-ui.html"), WEBJARS("/webjars/**"), SWAGGER_UI("/swagger-ui/**"),
     SWAGGER_API_V3_DOCS("/v3/api-docs/**"), SWAGGER_CONFIGURATION("/configuration/**"), SWAGGER("/swagger*/**"),
-    HEALTH_CHECK("/health-check"), ACTUATOR("/actuator/**"), LOGIN("/login"), SIGN_UP("/sign_up"), PLAN_LIST("/plans");
+    HEALTH_CHECK("/health-check"), ACTUATOR("/actuator/**"), LOGIN("/login"), SIGN_UP("/sign-up"), PLAN_LIST("/plans");
 
     private final String path;
 }
