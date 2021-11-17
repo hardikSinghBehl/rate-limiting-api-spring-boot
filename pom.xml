@@ -60,17 +60,21 @@
 			<artifactId>bucket4j-core</artifactId>
 			<version>6.3.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
+	
+	<developers>
+		<developer>
+			<id>hardikSinghBehl</id>
+			<name>Hardik Singh Behl</name>
+			<email>hardik.behl7444@gmail.com</email>
+			<url>https://www.linkedin.com/in/hardiksinghbehl</url>
+			<roles>
+				<role>Backend Web Developer</role>
+				<role>Java Spring-boot Developer</role>
+			</roles>
+			<timezone>UTC +5:30</timezone>
+		</developer>
+	</developers>
 
 	<build>
 		<plugins>
