@@ -1,6 +1,9 @@
 ## Rate limiting REST APIs using Spring-security filter and [Bucket4J](https://github.com/vladimir-bukhtoyarov/bucket4j)
 #### [Deployed Application (Swagger-ui on heroku)](https://rate-limit-api-spring-boot.herokuapp.com/swagger-ui.html)
 #### Inspired from: [Baeldung Article](https://www.baeldung.com/spring-bucket4j)
+
+<img width="759" alt="rate-limit-plans" src="https://user-images.githubusercontent.com/69693621/142211399-ac57ee24-6b9f-483f-93b4-e424b38469a8.png">
+
 ### Application flow
 * There are 3 entities in this POC with the mentioned key columns
   * users
