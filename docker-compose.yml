@@ -16,5 +16,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database/glumon
       SPRING_DATASOURCE_USERNAME: glumon
       SPRING_DATASOURCE_PASSWORD: glumon
+    volumes:
+      - glumon-db-volume:/var/lib/postgresql/data
     depends_on:
     - database
+    
+volumes:
+  glumon-db-volume:
