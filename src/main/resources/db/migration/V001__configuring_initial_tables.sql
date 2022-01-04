@@ -1,0 +1,34 @@
+CREATE TABLE plans (
+  id UUID NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  limit_per_hour int NOT NULL UNIQUE,
+  name varchar(255) NOT NULL UNIQUE,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE users (
+  id UUID NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  email_id varchar(255) NOT NULL,
+  password varchar(255) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE user_plan_mappings (
+  id SERIAL NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  is_active bit(1) NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  plan_id UUID NOT NULL,
+  user_id UUID NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT user_plan_mappings_fkey_plans FOREIGN KEY (plan_id)
+  REFERENCES plans (id) MATCH SIMPLE
+  ON UPDATE NO ACTION
+  ON DELETE NO ACTION,
+  CONSTRAINT user_plan_mappings_fkey_users FOREIGN KEY (user_id)
+  REFERENCES users (id) MATCH SIMPLE
+  ON UPDATE NO ACTION
+  ON DELETE NO ACTION
+);
