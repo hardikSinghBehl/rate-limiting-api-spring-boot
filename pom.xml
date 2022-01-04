@@ -31,8 +31,8 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -61,7 +61,7 @@
 			<version>6.3.0</version>
 		</dependency>
 	</dependencies>
-	
+
 	<developers>
 		<developer>
 			<id>hardikSinghBehl</id>
