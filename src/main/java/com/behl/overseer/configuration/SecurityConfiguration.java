@@ -27,16 +27,17 @@ import lombok.SneakyThrows;
  * features:
  * <ul>
  *   <li>Configuration of non-secured public API endpoints.</li>
- *   <li>Configuration of authentication entry point to handle authentication
- *       failures during the request evaluation through the filter chain.</li>
- *   <li>Integration of a custom JWT filter into the security filter chain to ensure
- *       that all requests to private endpoints pass through the filter for
+ *   <li>Integration of custom JWT Auth filter into the security filter chain to
+ *       ensure that all requests to private endpoints pass through the filter for
  *       authentication verification.</li>
+ *   <li>Integration of custom Rate limiting filter into the security filter chain
+ *       to ensure private API endpoints are invoked by an authenticated user
+ *       corresponding to their {@link com.behl.overseer.entity.Plan} </li>
  * </ul>
  *
  * @see com.behl.overseer.configuration.ApiPathExclusionConfigurationProperties
  * @see com.behl.overseer.filter.JwtAuthenticationFilter
- * @see com.behl.overseer.configuration.CustomAuthenticationEntryPoint
+ * @see com.behl.overseer.filter.RateLimitFilter
  */
 @Configuration
 @RequiredArgsConstructor

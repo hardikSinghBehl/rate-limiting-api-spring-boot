@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * by the {@link com.behl.overseer.filter.JwtAuthenticationFilter} during HTTP
  * request evaluation through the filter chain.
  * 
- * @see com.behl.cerberus.filter.JwtAuthenticationFilter
+ * @see com.behl.overseer.filter.JwtAuthenticationFilter
  */
 @Component
 public class AuthenticatedUserIdProvider {

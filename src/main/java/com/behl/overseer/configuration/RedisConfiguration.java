@@ -21,9 +21,9 @@ public class RedisConfiguration {
 
 	@Bean
 	public Config config(final RedisProperties redisProperties) {
+		final var connectionUrl = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
 		final var cacheCanfiguration = new Config();
-		final var address = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
-		cacheCanfiguration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(address);
+		cacheCanfiguration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(connectionUrl);
 		return cacheCanfiguration;
 	}
 

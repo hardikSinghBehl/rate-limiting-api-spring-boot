@@ -20,6 +20,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+/**
+ * RateLimitFilter is a custom filter registered with the spring security filter
+ * chain and works in conjunction with the security configuration, as defined in
+ * {@link com.behl.overseer.configuration.SecurityConfiguration}. As per
+ * established configuration, this filter is executed after evaluation of
+ * {@link com.behl.overseer.filter.JwtAuthenticationFilter}
+ * 
+ * The filter is only executed when a private API endpoint is invoked, and is
+ * skipped if the incoming request is destined to a non-secured public API
+ * endpoint configured in
+ * {@link com.behl.overseer.configuration.ApiPathExclusionConfigurationProperties}
+ * 
+ * This filter is responsible for implementing rate limiting functionality for
+ * API requests based on the user's current plan. It intercepts incoming HTTP
+ * requests and checks whether the user has exceeded the rate limit. If the
+ * limit is exceeded, it returns a rate limit error response indicating that the
+ * request limit linked to the user's current plan has been exhausted.
+ * 
+ * @see com.behl.overseer.service.RateLimitingService
+ * @see com.behl.overseer.utility.ApiEndpointSecurityInspector
+ * @see com.behl.overseer.configuration.SecurityConfiguration
+ */
 @Component
 @RequiredArgsConstructor
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -55,6 +77,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
+	/**
+	 * Sets the rate limit error details in the HTTP response. This method is
+	 * invoked when the user has exceeded their configured rate limit for API
+	 * requests.
+	 * 
+	 * @param response instance of HttpServletResponse to which the rate limit error response will be set.
+	 * @param consumptionProbe ConsumptionProbe object representing the rate limit consumption information.
+	 */
 	@SneakyThrows
 	private void setRateLimitErrorDetails(HttpServletResponse response, final ConsumptionProbe consumptionProbe) {
 		response.setStatus(RATE_LIMIT_ERROR_STATUS.value());
@@ -67,6 +97,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
 		response.getWriter().write(errorResponse);
 	}
 
+	/**
+	 * Returns a JSON representation of the rate limit exhaustion error response
+	 * body.
+	 */
 	@SneakyThrows
 	private String prepareErrorResponseBody() {
 		final var exceptionResponse = new ExceptionResponseDto<String>();

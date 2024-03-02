@@ -59,12 +59,12 @@ public class JwtUtility {
 	public String generateAccessToken(@NonNull final User user) {
 		final var audience = String.valueOf(user.getId());
 		
-		final var accessTokenValidity = tokenConfigurationProperties.getAccessToken().getValidity();
+		final var accessTokenValidity = tokenConfigurationProperties.getValidity();
 		final var expiration = TimeUnit.MINUTES.toMillis(accessTokenValidity);
 		final var currentTimestamp = new Date(System.currentTimeMillis());
 		final var expirationTimestamp = new Date(System.currentTimeMillis() + expiration);
 		
-		final var encodedSecretKey = tokenConfigurationProperties.getAccessToken().getSecretKey();
+		final var encodedSecretKey = tokenConfigurationProperties.getSecretKey();
 		final var secretKey = getSecretKey(encodedSecretKey);
 		
 		return Jwts.builder()
@@ -114,7 +114,7 @@ public class JwtUtility {
 	 * @return The extracted claim from the JWT token.
 	 */
 	private <T> T extractClaim(@NonNull final String token, @NonNull final Function<Claims, T> claimsResolver) {
-		final var encodedSecretKey = tokenConfigurationProperties.getAccessToken().getSecretKey();
+		final var encodedSecretKey = tokenConfigurationProperties.getSecretKey();
 		final var secretKey = getSecretKey(encodedSecretKey);
 		final var sanitizedToken = token.replace(BEARER_PREFIX, StringUtils.EMPTY);
 		final var claims = Jwts.parser()

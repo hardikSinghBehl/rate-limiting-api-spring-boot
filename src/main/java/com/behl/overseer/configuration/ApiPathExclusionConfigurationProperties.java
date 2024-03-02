@@ -14,8 +14,8 @@ import lombok.Setter;
  * as well as in the Authentication filter which populates the security context
  * corresponding to current HttpRequest.
  * 
- * @see com.behl.cerberus.configuration.SecurityConfiguration
- * @see com.behl.cerberus.filter.JwtAuthenticationFilter
+ * @see com.behl.overseer.configuration.SecurityConfiguration
+ * @see com.behl.overseer.filter.JwtAuthenticationFilter
  */
 @Getter
 @Setter
