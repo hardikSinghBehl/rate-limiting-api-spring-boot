@@ -13,6 +13,7 @@ import com.behl.overseer.utility.ApiEndpointSecurityInspector;
 import com.behl.overseer.utility.AuthenticatedUserIdProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,8 +29,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 	private final AuthenticatedUserIdProvider authenticatedUserIdProvider;
 	private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
 	
-	private static final String RATE_LIMIT_ERROR = "API request limit linked to your current plan has been exhausted.";
-
+	private static final String RATE_LIMIT_ERROR_MESSAGE = "API request limit linked to your current plan has been exhausted.";
+	private static final HttpStatus RATE_LIMIT_ERROR_STATUS = HttpStatus.TOO_MANY_REQUESTS;
+	
 	@Override
 	@SneakyThrows
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
@@ -42,18 +44,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 			final var isConsumptionPassed = consumptionProbe.isConsumed();
 			
 			if (Boolean.FALSE.equals(isConsumptionPassed)) {
-				final var httpStatus = HttpStatus.TOO_MANY_REQUESTS;
-	            response.setStatus(httpStatus.value());
-
-				final var waitPeriod = TimeUnit.NANOSECONDS.toSeconds(consumptionProbe.getNanosToWaitForRefill());
-				response.setHeader("X-Rate-Limit-Retry-After-Seconds", String.valueOf(waitPeriod));
-
-				final var exceptionResponse = new ExceptionResponseDto<String>();
-				exceptionResponse.setStatus(httpStatus.toString());
-				exceptionResponse.setDescription(RATE_LIMIT_ERROR);
-				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-				final var errorResponse = objectMapper.writeValueAsString(exceptionResponse);
-				response.getWriter().write(errorResponse);
+				setRateLimitErrorDetails(response, consumptionProbe);
 				return;
 			}
 			
@@ -62,6 +53,26 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
 		}
 		filterChain.doFilter(request, response);
+	}
+
+	@SneakyThrows
+	private void setRateLimitErrorDetails(HttpServletResponse response, final ConsumptionProbe consumptionProbe) {
+		response.setStatus(RATE_LIMIT_ERROR_STATUS.value());
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+		final var waitPeriod = TimeUnit.NANOSECONDS.toSeconds(consumptionProbe.getNanosToWaitForRefill());
+		response.setHeader("X-Rate-Limit-Retry-After-Seconds", String.valueOf(waitPeriod));
+
+		final var errorResponse = prepareErrorResponseBody();
+		response.getWriter().write(errorResponse);
+	}
+
+	@SneakyThrows
+	private String prepareErrorResponseBody() {
+		final var exceptionResponse = new ExceptionResponseDto<String>();
+		exceptionResponse.setStatus(RATE_LIMIT_ERROR_STATUS.toString());
+		exceptionResponse.setDescription(RATE_LIMIT_ERROR_MESSAGE);
+		return objectMapper.writeValueAsString(exceptionResponse);
 	}
 
 }
