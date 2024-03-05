@@ -19,8 +19,8 @@ public interface UserPlanMappingRepository extends JpaRepository<UserPlanMapping
      * 
      * @param userId The unique identifier of the user
      */
-    @Modifying
     @Transactional
+    @Modifying(clearAutomatically = true)
     @Query(nativeQuery = true, value = """
         UPDATE user_plan_mappings
         SET is_active = false
