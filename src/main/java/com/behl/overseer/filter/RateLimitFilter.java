@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.UrlPathHelper;
 
 import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.service.RateLimitingService;
@@ -58,7 +57,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
 	@SneakyThrows
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 		final var unsecuredApiBeingInvoked = apiEndpointSecurityInspector.isUnsecureRequest(request);
-		System.out.println(new UrlPathHelper().getPathWithinApplication(request));
 
 		if (Boolean.FALSE.equals(unsecuredApiBeingInvoked)) {
 			final var userId = authenticatedUserIdProvider.getUserId();
