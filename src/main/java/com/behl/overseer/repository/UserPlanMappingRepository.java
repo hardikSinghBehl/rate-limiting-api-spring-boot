@@ -9,9 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import com.behl.overseer.entity.UserPlanMapping;
 
-/**
- * Repository interface for managing user plan mappings.
- */
 @Repository
 public interface UserPlanMappingRepository extends JpaRepository<UserPlanMapping, UUID> {
 
