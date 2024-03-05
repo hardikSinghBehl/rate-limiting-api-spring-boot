@@ -30,7 +30,7 @@ com:
             - /api/v1/plan 
       token:
         secret-key: ${JWT_SECRET_KEY}
-        validity: 30
+        validity: 120
       open-api:
         api-version: 1.0.0
         title: Overseer

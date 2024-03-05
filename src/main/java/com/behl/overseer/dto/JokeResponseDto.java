@@ -12,7 +12,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 @JsonNaming(value = PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-@Schema(title = "JokeResponse", accessMode = Schema.AccessMode.READ_ONLY)
+@Schema(title = "Joke", accessMode = Schema.AccessMode.READ_ONLY)
 public class JokeResponseDto {
 	
 	private String joke;

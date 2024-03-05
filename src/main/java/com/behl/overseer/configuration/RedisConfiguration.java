@@ -19,18 +19,14 @@ public class RedisConfiguration {
 
 	private static final String CACHE_NAME = "rate-limit";
 
-	@Bean
-	public Config config(final RedisProperties redisProperties) {
-		final var connectionUrl = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
-		final var cacheCanfiguration = new Config();
-		cacheCanfiguration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(connectionUrl);
-		return cacheCanfiguration;
-	}
-
 	@Bean(name = "rate-limit-cache-manager")
-	public CacheManager cacheManager(final Config config) {
+	public CacheManager cacheManager(final RedisProperties redisProperties) {
+		final var connectionUrl = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
+		final var configuration = new Config();
+		configuration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(connectionUrl);
+
 		final var cacheManager = Caching.getCachingProvider().getCacheManager();
-		cacheManager.createCache(CACHE_NAME, RedissonConfiguration.fromConfig(config));
+		cacheManager.createCache(CACHE_NAME, RedissonConfiguration.fromConfig(configuration));
 		return cacheManager;
 	}
 

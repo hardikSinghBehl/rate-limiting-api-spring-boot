@@ -23,13 +23,12 @@ import lombok.SneakyThrows;
  * 
  * It is responsible for verifying the authenticity of incoming HTTP requests to
  * secured API endpoints by examining JWT token in the request header, verifying 
- * it's signature, expiration and evaluating it's presence in the token revocation list.
+ * it's signature, expiration.
  * If authentication is successful, the filter populates the security context with
- * the user's unique identifier and the permissions associated with the
- * authenticated user which can be referenced by the application later.
+ * the user's unique identifier which can be referenced by the application later.
  * 
- * This filter is only executed for secure endpoints, and is skipped if the incoming
- * request is destined to a non-secured public API endpoint.
+ * This filter is only executed when a secure API endpoint in invoked, and is skipped
+ * if the incoming request is destined to a non-secured public API endpoint.
  *
  * @see com.behl.overseer.configuration.SecurityConfiguration
  * @see com.behl.overseer.utility.ApiEndpointSecurityInspector
@@ -39,7 +38,7 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private final JwtUtility jwtUtils;
+	private final JwtUtility jwtUtility;
 	private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
 	
 	private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -57,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				if (authorizationHeader.startsWith(BEARER_PREFIX)) {
 					final var token = authorizationHeader.replace(BEARER_PREFIX, StringUtils.EMPTY);
 					
-					final var userId = jwtUtils.getUserId(token);
+					final var userId = jwtUtility.getUserId(token);
 					final var authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
 					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(authentication);

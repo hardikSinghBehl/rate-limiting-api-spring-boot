@@ -14,7 +14,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 @JsonNaming(value = PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-@Schema(title = "PlanResponse", accessMode = Schema.AccessMode.READ_ONLY)
+@Schema(title = "Plan", accessMode = Schema.AccessMode.READ_ONLY)
 public class PlanResponseDto {
 
 	private UUID id;

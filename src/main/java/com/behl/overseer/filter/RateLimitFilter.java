@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.UrlPathHelper;
 
 import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.service.RateLimitingService;
@@ -27,20 +28,19 @@ import lombok.SneakyThrows;
  * established configuration, this filter is executed after evaluation of
  * {@link com.behl.overseer.filter.JwtAuthenticationFilter}
  * 
- * The filter is only executed when a private API endpoint is invoked, and is
- * skipped if the incoming request is destined to a non-secured public API
- * endpoint configured in
- * {@link com.behl.overseer.configuration.ApiPathExclusionConfigurationProperties}
+ * This filter is responsible for enforcing rate limit on secured
+ * API endpoint(s) corresponding to the user's current plan. It intercepts 
+ * incoming HTTP  requests and evaluates whether the user has exhausted the 
+ * limit enforced.
+ * If the limit is exceeded, an error response indicating that the
+ * request limit linked to the user's current plan has been exhausted
+ * is returned back to the client.
  * 
- * This filter is responsible for implementing rate limiting functionality for
- * API requests based on the user's current plan. It intercepts incoming HTTP
- * requests and checks whether the user has exceeded the rate limit. If the
- * limit is exceeded, it returns a rate limit error response indicating that the
- * request limit linked to the user's current plan has been exhausted.
+ * This filter is only executed when a secure API endpoint in invoked, and is skipped
+ * if the incoming request is destined to a non-secured public API endpoint.
  * 
  * @see com.behl.overseer.service.RateLimitingService
  * @see com.behl.overseer.utility.ApiEndpointSecurityInspector
- * @see com.behl.overseer.configuration.SecurityConfiguration
  */
 @Component
 @RequiredArgsConstructor
@@ -58,6 +58,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 	@SneakyThrows
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 		final var unsecuredApiBeingInvoked = apiEndpointSecurityInspector.isUnsecureRequest(request);
+		System.out.println(new UrlPathHelper().getPathWithinApplication(request));
 
 		if (Boolean.FALSE.equals(unsecuredApiBeingInvoked)) {
 			final var userId = authenticatedUserIdProvider.getUserId();

@@ -24,7 +24,9 @@ public class OpenApiConfiguration {
 	@Bean
 	public OpenAPI openApi() {
 		final var properties = openApiConfigurationProperties.getOpenApi();
-		final var info = new Info().title(properties.getTitle()).version(properties.getApiVersion())
+		final var info = new Info()
+				.version(properties.getApiVersion())
+				.title(properties.getTitle())
 				.description(properties.getDescription());
 
 		return new OpenAPI()

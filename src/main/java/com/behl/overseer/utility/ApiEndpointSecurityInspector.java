@@ -17,10 +17,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Utility class responsible for inspecting the security of API endpoints by
- * determining whether a given HTTP request is destined for a secured or
- * unsecured API endpoint. It works in conjunction with the api paths mapped in
- * {@link ApiPathExclusionConfigurationProperties}.
+ * Utility class responsible for evaluating whether an HTTP request is destined
+ * for a secured or  unsecured API endpoint. It works in conjunction with the API
+ *  paths mapped in {@link ApiPathExclusionConfigurationProperties}.
  */
 @Component
 @RequiredArgsConstructor

@@ -30,7 +30,7 @@ public class AuthenticationController {
 	private final UserService userService;
 
 	@PostMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(summary = "Creates a user record", description = "Registers a unique user record in the system corresponding to the provided information")
+	@Operation(summary = "Creates a user record", description = "Creates a unique user record in the system corresponding to the provided information")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "201", description = "User record created successfully",
 					content = @Content(schema = @Schema(implementation = Void.class))),
@@ -46,10 +46,10 @@ public class AuthenticationController {
 	}
 
 	@PostMapping(value = "/auth/login")
-	@Operation(summary = "Logs-in user into the system", description = "Returns Access-token on successfull authentication which provides access to private API endpoints")
+	@Operation(summary = "Validates user login credentials", description = "Validates user login credentials and returns access-token on successful authentication")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Authentication successfull"),
-			@ApiResponse(responseCode = "401", description = "Bad credentials provided. Failed to authenticate user",
+			@ApiResponse(responseCode = "401", description = "Invalid credentials provided. Failed to authenticate user",
 					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class))),
 			@ApiResponse(responseCode = "400", description = "Invalid request body",
 					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class))) })

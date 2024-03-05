@@ -1,6 +1,5 @@
 package com.behl.overseer.utility;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +13,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component;
 
 import com.behl.overseer.configuration.TokenConfigurationProperties;
-import com.behl.overseer.entity.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -37,27 +35,27 @@ public class JwtUtility {
 	
 	private static final String BEARER_PREFIX = "Bearer ";
 
-	private final TokenConfigurationProperties tokenConfigurationProperties;
 	private final String issuer;
+	private final TokenConfigurationProperties tokenConfigurationProperties;
 	
-	public JwtUtility(final TokenConfigurationProperties tokenConfigurationProperties,
-			@Value("${spring.application.name}") final String issuer) {
-		this.tokenConfigurationProperties = tokenConfigurationProperties;
+	public JwtUtility(@Value("${spring.application.name}") final String issuer,
+			final TokenConfigurationProperties tokenConfigurationProperties) {
 		this.issuer = issuer;
+		this.tokenConfigurationProperties = tokenConfigurationProperties;
 	}
 
 	/**
-	 * Generates an access token corresponding to provided user entity based on
+	 * Generates an access token corresponding to provided user-id based on
 	 * configured settings. The generated access token can be used to perform tasks
 	 * on behalf of the user on subsequent HTTP calls to the application until it
-	 * expires or is revoked.
+	 * expires.
 	 * 
-	 * @param user The user for whom to generate an access token.
+	 * @param userId The userId against which an access token is to be generated.
 	 * @throws IllegalArgumentException if provided argument is <code>null</code>.
 	 * @return The generated JWT access token.
 	 */
-	public String generateAccessToken(@NonNull final User user) {
-		final var audience = String.valueOf(user.getId());
+	public String generateAccessToken(@NonNull final UUID userId) {
+		final var audience = String.valueOf(userId);
 		
 		final var accessTokenValidity = tokenConfigurationProperties.getValidity();
 		final var expiration = TimeUnit.MINUTES.toMillis(accessTokenValidity);
@@ -89,20 +87,6 @@ public class JwtUtility {
 		final var audience = extractClaim(token, Claims::getAudience).iterator().next();
 		return UUID.fromString(audience);
 	}
-	
-	/**
-	 * Calculates the <code>java.time.Duration</code> until a JWT token's
-	 * expiration.
-	 * 
-	 * @param token The JWT token for which to calculate the time until expiration.
-	 * @throws IllegalArgumentException if provided argument is <code>null</code>
-	 * @return The duration until token expiration.
-	 */
-	public Duration getTimeUntilExpiration(@NonNull final String token) {
-	    final var expirationTimestamp = extractClaim(token, Claims::getExpiration).toInstant();
-	    final var currentTimestamp = new Date().toInstant();
-	    return Duration.between(currentTimestamp, expirationTimestamp);
-	}
 
 	/**
 	 * Extracts a specific claim from the provided JWT token. This method verifies
@@ -111,7 +95,7 @@ public class JwtUtility {
 	 * @param token JWT token from which the desired claim is to be extracted.
 	 * @param claimsResolver function of {@link Claims} to execute. example: {@code Claims::getId}.
 	 * @throws IllegalArgumentException if any provided argument is <code>null</code>
-	 * @return The extracted claim from the JWT token.
+	 * @return The extracted claim value from the JWT token.
 	 */
 	private <T> T extractClaim(@NonNull final String token, @NonNull final Function<Claims, T> claimsResolver) {
 		final var encodedSecretKey = tokenConfigurationProperties.getSecretKey();
