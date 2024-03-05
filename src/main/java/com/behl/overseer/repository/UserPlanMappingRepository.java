@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import com.behl.overseer.entity.UserPlanMapping;
 
+import jakarta.transaction.Transactional;
+
 @Repository
 public interface UserPlanMappingRepository extends JpaRepository<UserPlanMapping, UUID> {
 
@@ -18,6 +20,7 @@ public interface UserPlanMappingRepository extends JpaRepository<UserPlanMapping
      * @param userId The unique identifier of the user
      */
     @Modifying
+    @Transactional
     @Query(nativeQuery = true, value = """
         UPDATE user_plan_mappings
         SET is_active = false

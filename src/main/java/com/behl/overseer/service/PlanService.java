@@ -3,7 +3,6 @@ package com.behl.overseer.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.behl.overseer.dto.PlanResponseDto;
 import com.behl.overseer.dto.PlanUpdationRequestDto;
@@ -38,7 +37,6 @@ public class PlanService {
      * @throws IllegalArgumentException if provided argument is <code>null</code>.
      * @throws InvalidPlanException if no plan exists with provided-id.
      */
-    @Transactional
     public void update(@NonNull final PlanUpdationRequestDto planUpdationRequest) {
         final var userId = authenticatedUserIdProvider.getUserId();
         final var planId = planUpdationRequest.getPlanId();
