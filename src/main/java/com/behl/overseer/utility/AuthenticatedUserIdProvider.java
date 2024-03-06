@@ -35,5 +35,17 @@ public class AuthenticatedUserIdProvider {
 		        .map(UUID.class::cast)
 		        .orElseThrow(IllegalStateException::new);
 	}
+	
+	/**
+	 * Checks whether the security context is populated with a valid authentication
+	 * object.
+	 *
+	 * @return {@code true} if an authentication context is available, {@code false}
+	 *         otherwise.
+	 */
+	public boolean isAvailable() {
+		final var authentication = SecurityContextHolder.getContext().getAuthentication();
+		return Optional.ofNullable(authentication).isPresent();
+	}
 
 }

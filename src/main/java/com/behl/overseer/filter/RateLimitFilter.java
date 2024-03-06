@@ -58,7 +58,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 		final var unsecuredApiBeingInvoked = apiEndpointSecurityInspector.isUnsecureRequest(request);
 
-		if (Boolean.FALSE.equals(unsecuredApiBeingInvoked)) {
+		if (Boolean.FALSE.equals(unsecuredApiBeingInvoked) && authenticatedUserIdProvider.isAvailable()) {
 			final var userId = authenticatedUserIdProvider.getUserId();
 			final var bucket = rateLimitingService.getBucket(userId);
 			final var consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
