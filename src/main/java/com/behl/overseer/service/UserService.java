@@ -30,17 +30,17 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserPlanMappingRepository userPlanMappingRepository;
 
-    /**
+	/**
 	 * Creates a new user account in the system corresponding to provided
 	 * subscription plan in the request.
-     *
-     * @param userCreationRequest containing user account details.
-     * @throws IllegalArgumentException if provided argument is <code>null</code>.
-     * @throws AccountAlreadyExistsException If an account with the provided email-id already exists.
-     * @throws InvalidPlanException If the provided plan ID is invalid.
-     */
-    @Transactional
-    public void create(@NonNull final UserCreationRequestDto userCreationRequest) {
+	 *
+	 * @param userCreationRequest containing user account details.
+	 * @throws IllegalArgumentException if provided argument is <code>null</code>.
+	 * @throws AccountAlreadyExistsException If an account with the provided email-id already exists.
+	 * @throws InvalidPlanException If the provided plan ID is invalid.
+	 */
+	@Transactional
+	public void create(@NonNull final UserCreationRequestDto userCreationRequest) {
 		final var emailId = userCreationRequest.getEmailId();
 		final var userAccountExistsWithEmailId = userRepository.existsByEmailId(emailId);
 		if (Boolean.TRUE.equals(userAccountExistsWithEmailId)) {
@@ -63,18 +63,18 @@ public class UserService {
 		userPlanMapping.setUserId(savedUser.getId());
 		userPlanMapping.setPlanId(planId);
 		userPlanMappingRepository.save(userPlanMapping);
-    }
-    
-    /**
-     * Validates user login credentials and generates an access token on 
-     * successful authentication.
-     *
-     * @param userLoginRequest The request object containing user login credentials.
-     * @return The access token response containing the generated access token.
-     * @throws IllegalArgumentException if provided argument is <code>null</code>.
-     * @throws InvalidLoginCredentialsException If the provided login credentials are invalid.
-     */
-    public TokenSuccessResponseDto login(@NonNull final UserLoginRequestDto userLoginRequest) {
+	}
+
+	/**
+	 * Validates user login credentials and generates an access token on successful
+	 * authentication.
+	 *
+	 * @param userLoginRequest The request object containing user login credentials.
+	 * @return The access token response containing the generated access token.
+	 * @throws IllegalArgumentException if provided argument is <code>null</code>.
+	 * @throws InvalidLoginCredentialsException If the provided login credentials are invalid.
+	 */
+	public TokenSuccessResponseDto login(@NonNull final UserLoginRequestDto userLoginRequest) {
 		final var user = userRepository.findByEmailId(userLoginRequest.getEmailId())
 				.orElseThrow(InvalidLoginCredentialsException::new);
 
@@ -85,10 +85,8 @@ public class UserService {
 			throw new InvalidLoginCredentialsException();
 		}
 
-		final var accessToken = jwtUtility.generateAccessToken(user.getId());	
-		return TokenSuccessResponseDto.builder()
-				.accessToken(accessToken)
-				.build();
-    }
+		final var accessToken = jwtUtility.generateAccessToken(user.getId());
+		return TokenSuccessResponseDto.builder().accessToken(accessToken).build();
+	}
 
 }
