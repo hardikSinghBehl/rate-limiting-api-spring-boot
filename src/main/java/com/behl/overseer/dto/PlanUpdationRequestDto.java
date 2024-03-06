@@ -19,6 +19,6 @@ public class PlanUpdationRequestDto {
 
 	@NotNull
 	@Schema(requiredMode = RequiredMode.REQUIRED, description = "plan to be attached with user record")
-    private UUID planId;
+	private UUID planId;
 
 }

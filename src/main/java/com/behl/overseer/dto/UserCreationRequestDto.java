@@ -30,6 +30,6 @@ public class UserCreationRequestDto {
 	
 	@NotNull
 	@Schema(requiredMode = RequiredMode.REQUIRED, description = "plan to be attached with new user record")
-    private UUID planId;
+	private UUID planId;
 
 }

@@ -19,9 +19,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PlanService {
 
-    private final PlanRepository planRepository;
-    private final RateLimitingService rateLimitingService;
-    private final UserPlanMappingRepository userPlanMappingRepository;
+	private final PlanRepository planRepository;
+	private final RateLimitingService rateLimitingService;
+	private final UserPlanMappingRepository userPlanMappingRepository;
 	private final AuthenticatedUserIdProvider authenticatedUserIdProvider;
 
     /**
@@ -37,29 +37,28 @@ public class PlanService {
      * @throws IllegalArgumentException if provided argument is <code>null</code>.
      * @throws InvalidPlanException if no plan exists with provided-id.
      */
-    public void update(@NonNull final PlanUpdationRequestDto planUpdationRequest) {
-        final var userId = authenticatedUserIdProvider.getUserId();
-        final var planId = planUpdationRequest.getPlanId();
-        
-        final var isPlanIdValid = planRepository.existsById(planId);
-        if (Boolean.FALSE.equals(isPlanIdValid)) {
-        	throw new InvalidPlanException("No plan exists in the system with provided-id");
-        }
-        
-        final var isExistingUserPlan = userPlanMappingRepository.isActivePlan(userId, planId);
-        if (Boolean.TRUE.equals(isExistingUserPlan)) {
-        	return;
-        }
-        
-        userPlanMappingRepository.deactivateCurrentPlan(userId);
+	public void update(@NonNull final PlanUpdationRequestDto planUpdationRequest) {
+		final var planId = planUpdationRequest.getPlanId();
+		final var isPlanIdValid = planRepository.existsById(planId);
+		if (Boolean.FALSE.equals(isPlanIdValid)) {
+			throw new InvalidPlanException("No plan exists in the system with provided-id");
+		}
 
-        final var newPlan = new UserPlanMapping();
-        newPlan.setUserId(userId);
-        newPlan.setPlanId(planId);
-        userPlanMappingRepository.save(newPlan);
+		final var userId = authenticatedUserIdProvider.getUserId();
+		final var isExistingUserPlan = userPlanMappingRepository.isActivePlan(userId, planId);
+		if (Boolean.TRUE.equals(isExistingUserPlan)) {
+			return;
+		}
 
-        rateLimitingService.reset(userId);
-    }
+		userPlanMappingRepository.deactivateCurrentPlan(userId);
+
+		final var newPlan = new UserPlanMapping();
+		newPlan.setUserId(userId);
+		newPlan.setPlanId(planId);
+		userPlanMappingRepository.save(newPlan);
+
+		rateLimitingService.reset(userId);
+	}
     
 	/**
 	 * Retrieves all available subscription plans.
