@@ -88,6 +88,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
+	/**
+	 * Checks if the controller method corresponding to current request is annotated
+	 * with {@link BypassRateLimit} annotation, indicating that rate limit
+	 * enforcement should be bypassed.
+	 *
+	 * @param request HttpServletRequest representing the incoming HTTP request
+	 * @return {@code true} if the request is to be bypassed, {@code false} otherwise
+	 */
 	@SneakyThrows
 	private boolean isBypassed(HttpServletRequest request) {
 		var handlerChain = requestHandlerMapping.getHandler(request);
