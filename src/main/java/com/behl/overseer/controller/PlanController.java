@@ -45,7 +45,8 @@ public class PlanController {
 	@PutMapping(value = "/plan")
 	@Operation(summary = "Update user plan", description = "Updates an existing plan of an authenticated user")
 	@ApiResponses(value = { 
-			@ApiResponse(responseCode = "200", description = "Plan updated successfully"),
+			@ApiResponse(responseCode = "200", description = "Plan updated successfully",
+					content = @Content(schema = @Schema(implementation = Void.class))),
 			@ApiResponse(responseCode = "404", description = "No plan exists in the system with provided-id",
 					content = @Content(schema = @Schema(implementation = ExceptionResponseDto.class))),
 			@ApiResponse(responseCode = "429", description = "API rate limit exhausted",
