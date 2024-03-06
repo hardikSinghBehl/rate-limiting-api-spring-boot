@@ -25,10 +25,10 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final JwtUtility jwtUtility;
-    private final UserRepository userRepository;
-    private final PlanRepository planRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserPlanMappingRepository userPlanMappingRepository;
+	private final UserRepository userRepository;
+	private final PlanRepository planRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final UserPlanMappingRepository userPlanMappingRepository;
 
     /**
 	 * Creates a new user account in the system corresponding to provided
@@ -46,23 +46,23 @@ public class UserService {
 		if (Boolean.TRUE.equals(userAccountExistsWithEmailId)) {
 			throw new AccountAlreadyExistsException("Account with provided email-id already exists");
 		}
-		
-        final var planId = userCreationRequest.getPlanId();
-		final var isPlanIdValid = planRepository.existsById(planId);
-        if (Boolean.FALSE.equals(isPlanIdValid)) {
-        	throw new InvalidPlanException("No plan exists in the system with provided-id");
-        }
 
-        final var user = new User();
+		final var planId = userCreationRequest.getPlanId();
+		final var isPlanIdValid = planRepository.existsById(planId);
+		if (Boolean.FALSE.equals(isPlanIdValid)) {
+			throw new InvalidPlanException("No plan exists in the system with provided-id");
+		}
+
+		final var user = new User();
 		final var encodedPassword = passwordEncoder.encode(userCreationRequest.getPassword());
-        user.setEmailId(emailId);
-        user.setPassword(encodedPassword);
-        final var savedUser = userRepository.save(user);
-        
-        final var userPlanMapping = new UserPlanMapping();
-        userPlanMapping.setUserId(savedUser.getId());
-        userPlanMapping.setPlanId(planId);
-        userPlanMappingRepository.save(userPlanMapping);
+		user.setEmailId(emailId);
+		user.setPassword(encodedPassword);
+		final var savedUser = userRepository.save(user);
+
+		final var userPlanMapping = new UserPlanMapping();
+		userPlanMapping.setUserId(savedUser.getId());
+		userPlanMapping.setPlanId(planId);
+		userPlanMappingRepository.save(userPlanMapping);
     }
     
     /**
@@ -75,8 +75,8 @@ public class UserService {
      * @throws InvalidLoginCredentialsException If the provided login credentials are invalid.
      */
     public TokenSuccessResponseDto login(@NonNull final UserLoginRequestDto userLoginRequest) {
-    	final var user = userRepository.findByEmailId(userLoginRequest.getEmailId())
-    			.orElseThrow(InvalidLoginCredentialsException::new);
+		final var user = userRepository.findByEmailId(userLoginRequest.getEmailId())
+				.orElseThrow(InvalidLoginCredentialsException::new);
 
 		final var encodedPassword = user.getPassword();
 		final var plainTextPassword = userLoginRequest.getPassword();
@@ -84,8 +84,8 @@ public class UserService {
 		if (Boolean.FALSE.equals(isCorrectPassword)) {
 			throw new InvalidLoginCredentialsException();
 		}
-		
-		final var accessToken = jwtUtility.generateAccessToken(user.getId());		
+
+		final var accessToken = jwtUtility.generateAccessToken(user.getId());	
 		return TokenSuccessResponseDto.builder()
 				.accessToken(accessToken)
 				.build();

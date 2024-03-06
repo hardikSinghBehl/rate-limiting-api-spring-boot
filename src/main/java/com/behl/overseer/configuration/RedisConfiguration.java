@@ -23,15 +23,15 @@ public class RedisConfiguration {
 	@Bean(name = "rate-limit-cache-manager")
 	public CacheManager cacheManager(final RedisProperties redisProperties) {
 		final var cacheManager = Caching.getCachingProvider().getCacheManager();
-        final var isCacheCreated = Optional.ofNullable(cacheManager.getCache(CACHE_NAME)).isPresent();
+		final var isCacheCreated = Optional.ofNullable(cacheManager.getCache(CACHE_NAME)).isPresent();
         
         if (Boolean.FALSE.equals(isCacheCreated)) {
-    		final var connectionUrl = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
-    		final var configuration = new Config();
-    		configuration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(connectionUrl);
-    		
+			final var connectionUrl = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
+			final var configuration = new Config();
+			configuration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(connectionUrl);
+
 			cacheManager.createCache(CACHE_NAME, RedissonConfiguration.fromConfig(configuration));
-        }
+		}
 		return cacheManager;
 	}
 

@@ -25,7 +25,7 @@ public class JokeController {
 	private final JokeGenerator jokeGenerator;
 
 	@GetMapping(value = "/joke", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Generates a random unfunny joke")
+	@Operation(summary = "Generates a random unfunny joke")
 	@ApiResponses(value = { 
 			@ApiResponse(responseCode = "200", description = "Successfully generated random unfunny joke"),
 			@ApiResponse(responseCode = "429", description = "API rate limit exhausted",
