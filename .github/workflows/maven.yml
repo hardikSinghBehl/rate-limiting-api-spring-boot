@@ -2,9 +2,9 @@ name: Rate limiting APIs using token bucket algorithm build
 
 on:
   push:
-    branches: [ "master", "feature/*", "fix/*", "refactor/*" ]
+    branches: [ "main", "feature/*", "fix/*", "refactor/*" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
