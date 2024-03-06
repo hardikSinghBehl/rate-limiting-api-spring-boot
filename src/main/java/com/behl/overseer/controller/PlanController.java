@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.behl.overseer.configuration.BypassRateLimit;
 import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.dto.PlanResponseDto;
 import com.behl.overseer.dto.PlanUpdationRequestDto;
@@ -38,6 +39,7 @@ public class PlanController {
 		return ResponseEntity.ok(planService.retrieve());
 	}
 
+	@BypassRateLimit
 	@PutMapping(value = "/plan")
 	@Operation(summary = "Update user plan", description = "Updates an existing plan of an authenticated user")
 	@ApiResponses(value = { 

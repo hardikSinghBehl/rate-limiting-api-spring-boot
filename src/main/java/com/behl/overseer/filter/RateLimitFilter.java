@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.behl.overseer.configuration.BypassRateLimit;
 import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.service.RateLimitingService;
 import com.behl.overseer.utility.ApiEndpointSecurityInspector;
@@ -38,6 +41,11 @@ import lombok.SneakyThrows;
  * This filter is only executed when a secure API endpoint in invoked, and is skipped
  * if the incoming request is destined to a non-secured public API endpoint.
  * 
+ * Additionally, the rate limit enforcement can be bypassed for specific private
+ * API endpoints by annotating the corresponding controller methods with
+ * {@link com.behl.overseer.configuration.BypassRateLimit} annotation.
+ * 
+ * @see com.behl.overseer.configuration.BypassRateLimit
  * @see com.behl.overseer.service.RateLimitingService
  * @see com.behl.overseer.utility.ApiEndpointSecurityInspector
  */
@@ -47,33 +55,46 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
 	private final ObjectMapper objectMapper;
 	private final RateLimitingService rateLimitingService;
+	private final RequestMappingHandlerMapping requestHandlerMapping;
 	private final AuthenticatedUserIdProvider authenticatedUserIdProvider;
 	private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
-	
+
 	private static final String RATE_LIMIT_ERROR_MESSAGE = "API request limit linked to your current plan has been exhausted.";
 	private static final HttpStatus RATE_LIMIT_ERROR_STATUS = HttpStatus.TOO_MANY_REQUESTS;
-	
+
 	@Override
 	@SneakyThrows
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 		final var unsecuredApiBeingInvoked = apiEndpointSecurityInspector.isUnsecureRequest(request);
 
 		if (Boolean.FALSE.equals(unsecuredApiBeingInvoked) && authenticatedUserIdProvider.isAvailable()) {
-			final var userId = authenticatedUserIdProvider.getUserId();
-			final var bucket = rateLimitingService.getBucket(userId);
-			final var consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
-			final var isConsumptionPassed = consumptionProbe.isConsumed();
-			
-			if (Boolean.FALSE.equals(isConsumptionPassed)) {
-				setRateLimitErrorDetails(response, consumptionProbe);
-				return;
-			}
-			
-			final var remainingTokens = consumptionProbe.getRemainingTokens();
-			response.setHeader("X-Rate-Limit-Remaining", String.valueOf(remainingTokens));
+			final var isRequestBypassed = isBypassed(request);
 
+			if (Boolean.FALSE.equals(isRequestBypassed)) {
+				final var userId = authenticatedUserIdProvider.getUserId();
+				final var bucket = rateLimitingService.getBucket(userId);
+				final var consumptionProbe = bucket.tryConsumeAndReturnRemaining(1);
+				final var isConsumptionPassed = consumptionProbe.isConsumed();
+
+				if (Boolean.FALSE.equals(isConsumptionPassed)) {
+					setRateLimitErrorDetails(response, consumptionProbe);
+					return;
+				}
+
+				final var remainingTokens = consumptionProbe.getRemainingTokens();
+				response.setHeader("X-Rate-Limit-Remaining", String.valueOf(remainingTokens));
+			}
 		}
 		filterChain.doFilter(request, response);
+	}
+
+	@SneakyThrows
+	private boolean isBypassed(HttpServletRequest request) {
+		var handlerChain = requestHandlerMapping.getHandler(request);
+		if (handlerChain != null && handlerChain.getHandler() instanceof HandlerMethod handlerMethod) {
+			return handlerMethod.getMethod().isAnnotationPresent(BypassRateLimit.class);
+		}
+		return Boolean.FALSE;
 	}
 
 	/**
