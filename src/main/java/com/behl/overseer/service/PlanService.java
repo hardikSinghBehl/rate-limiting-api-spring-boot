@@ -65,8 +65,14 @@ public class PlanService {
 	 * @return List of PlanResponseDto containing details of each available plan.
 	 */
 	public List<PlanResponseDto> retrieve() {
-		return planRepository.findAll().stream().map(plan -> PlanResponseDto.builder().id(plan.getId())
-				.name(plan.getName()).limitPerHour(plan.getLimitPerHour()).build()).toList();
+		return planRepository.findAll()
+				.stream()
+				.map(plan -> PlanResponseDto.builder()
+						.id(plan.getId())
+						.name(plan.getName())
+						.limitPerHour(plan.getLimitPerHour())
+						.build())
+				.toList();
 	}
 
 }
