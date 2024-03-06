@@ -47,7 +47,8 @@ public class UserService {
 			throw new AccountAlreadyExistsException("Account with provided email-id already exists");
 		}
 		
-        final var isPlanIdValid = planRepository.existsById(userCreationRequest.getPlanId());
+        final var planId = userCreationRequest.getPlanId();
+		final var isPlanIdValid = planRepository.existsById(planId);
         if (Boolean.FALSE.equals(isPlanIdValid)) {
         	throw new InvalidPlanException("No plan exists in the system with provided-id");
         }
@@ -60,7 +61,7 @@ public class UserService {
         
         final var userPlanMapping = new UserPlanMapping();
         userPlanMapping.setUserId(savedUser.getId());
-        userPlanMapping.setPlanId(userCreationRequest.getPlanId());
+        userPlanMapping.setPlanId(planId);
         userPlanMappingRepository.save(userPlanMapping);
     }
     
