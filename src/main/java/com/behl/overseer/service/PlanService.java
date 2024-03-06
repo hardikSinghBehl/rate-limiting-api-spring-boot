@@ -24,19 +24,18 @@ public class PlanService {
 	private final UserPlanMappingRepository userPlanMappingRepository;
 	private final AuthenticatedUserIdProvider authenticatedUserIdProvider;
 
-    /**
-     * Updates the subscription plan for a user and deactivates their
-     * current plan in the system. The rate-limit corresponding to the
-     * previous plan is cleared on successful plan updation.
-     * 
-     * If the provided plan-id to update matches the user's current plan-id,
-     * then no changes in the datasource is performed and method execution
-     * is halted.
-     *
-     * @param planUpdationRequest containing user's new plan details.
-     * @throws IllegalArgumentException if provided argument is <code>null</code>.
-     * @throws InvalidPlanException if no plan exists with provided-id.
-     */
+	/**
+	 * Updates the subscription plan for a user and deactivates their current plan
+	 * in the system. The rate-limit corresponding to the previous plan is cleared
+	 * on successful plan updation.
+	 * 
+	 * If the provided plan-id to update matches the user's current plan-id, then no
+	 * changes in the datasource is performed and method execution is halted.
+	 *
+	 * @param planUpdationRequest containing user's new plan details.
+	 * @throws IllegalArgumentException if provided argument is <code>null</code>.
+	 * @throws InvalidPlanException if no plan exists with provided-id.
+	 */
 	public void update(@NonNull final PlanUpdationRequestDto planUpdationRequest) {
 		final var planId = planUpdationRequest.getPlanId();
 		final var isPlanIdValid = planRepository.existsById(planId);
@@ -59,21 +58,21 @@ public class PlanService {
 
 		rateLimitingService.reset(userId);
 	}
-    
+
 	/**
 	 * Retrieves all available subscription plans.
 	 *
 	 * @return List of PlanResponseDto containing details of each available plan.
 	 */
-    public List<PlanResponseDto> retrieve() {
-    	return planRepository.findAll()
-    		.stream()
-    		.map(plan -> PlanResponseDto.builder()
-    			.id(plan.getId())
-    			.name(plan.getName())
-    			.limitPerHour(plan.getLimitPerHour())
-    			.build())
-    		.toList();
-    }
+	public List<PlanResponseDto> retrieve() {
+		return planRepository.findAll()
+				.stream()
+				.map(plan -> PlanResponseDto.builder()
+						.id(plan.getId())
+						.name(plan.getName())
+						.limitPerHour(plan.getLimitPerHour())
+						.build())
+				.toList();
+	}
 
 }

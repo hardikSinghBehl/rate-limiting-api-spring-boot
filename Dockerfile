@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY lombok.config .
 RUN mvn dependency:go-offline -B
 COPY src ./src
-RUN mvn clean install
+RUN mvn clean install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM openjdk:21

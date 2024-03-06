@@ -25,7 +25,7 @@ public class RedisConfiguration {
 		final var cacheManager = Caching.getCachingProvider().getCacheManager();
 		final var isCacheCreated = Optional.ofNullable(cacheManager.getCache(CACHE_NAME)).isPresent();
         
-        if (Boolean.FALSE.equals(isCacheCreated)) {
+		if (Boolean.FALSE.equals(isCacheCreated)) {
 			final var connectionUrl = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
 			final var configuration = new Config();
 			configuration.useSingleServer().setPassword(redisProperties.getPassword()).setAddress(connectionUrl);
