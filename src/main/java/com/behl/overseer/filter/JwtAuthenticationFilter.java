@@ -1,14 +1,18 @@
 package com.behl.overseer.filter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.utility.ApiEndpointSecurityInspector;
 import com.behl.overseer.utility.JwtUtility;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,11 +42,13 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+	private final ObjectMapper objectMapper;
 	private final JwtUtility jwtUtility;
 	private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
 	
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String BEARER_PREFIX = "Bearer ";
+	private static final String MISSING_TOKEN_ERROR_MESSAGE = "Authentication failure: Token missing, invalid or expired";
 
 	@Override
 	@SneakyThrows
@@ -52,18 +58,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (Boolean.FALSE.equals(unsecuredApiBeingInvoked)) {
 			final var authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
 	
-			if (StringUtils.isNotEmpty(authorizationHeader)) {
-				if (authorizationHeader.startsWith(BEARER_PREFIX)) {
-					final var token = authorizationHeader.replace(BEARER_PREFIX, StringUtils.EMPTY);
-					
-					final var userId = jwtUtility.getUserId(token);
-					final var authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
-					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(authentication);
-				}
+			if (StringUtils.isNotEmpty(authorizationHeader) && authorizationHeader.startsWith(BEARER_PREFIX) ) {
+				final var token = authorizationHeader.replace(BEARER_PREFIX, StringUtils.EMPTY);
+				
+				final var userId = jwtUtility.getUserId(token);
+				final var authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			} else {
+				setAuthErrorDetails(response);
+				return;
 			}
 		}
 		filterChain.doFilter(request, response);
+	}
+	
+	/**
+	 * Sets the authentication error details in the HTTP response. 
+	 * 
+	 * @param response instance of HttpServletResponse to which error response will be set.
+	 */
+	@SneakyThrows
+	private void setAuthErrorDetails(HttpServletResponse response) {
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		final var errorResponse = prepareErrorResponseBody();
+		response.getWriter().write(errorResponse);
+	}
+	
+	/**
+	 * Returns a JSON representation of the invalid token error response body.
+	 */
+	@SneakyThrows
+	private String prepareErrorResponseBody() {
+		final var exceptionResponse = new ExceptionResponseDto<String>();
+		exceptionResponse.setStatus(HttpStatus.UNAUTHORIZED.toString());
+		exceptionResponse.setDescription(MISSING_TOKEN_ERROR_MESSAGE);
+		return objectMapper.writeValueAsString(exceptionResponse);
 	}
 
 }
