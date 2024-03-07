@@ -1,0 +1,262 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: Overseer
+  description: Backend application imposing rate limit on private API endpoints using
+    token bucket algorithm
+servers:
+- url: http://localhost:8080
+  description: Local Backend Server
+tags:
+- name: Plan Management
+  description: Endpoints for managing and retrieving available plan details
+- name: Authentication
+  description: Endpoints for user account and authentication management
+- name: Joke Generator
+  description: Endpoint for generating random unfunny joke
+paths:
+  /api/v1/plan:
+    get:
+      tags:
+      - Plan Management
+      summary: Retrieves all available plans
+      description: Retrieves the list of available plans in the system
+      operationId: retrieve
+      responses:
+        "200":
+          description: Plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlanResponseDto'
+    put:
+      tags:
+      - Plan Management
+      summary: Update user plan
+      description: Updates an existing plan of an authenticated user
+      operationId: update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanUpdationRequestDto'
+        required: true
+      responses:
+        "404":
+          description: No plan exists in the system with provided-id
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "200":
+          description: Plan updated successfully
+        "400":
+          description: Invalid request body
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "429":
+          description: API rate limit exhausted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+  /api/v1/user:
+    post:
+      tags:
+      - Authentication
+      summary: Creates a user record
+      description: Creates a unique user record in the system corresponding to the
+        provided information
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreationRequestDto'
+        required: true
+      responses:
+        "409":
+          description: User account with provided email-id already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "404":
+          description: No plan exists in the system with provided-id
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "400":
+          description: Invalid request body
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "201":
+          description: User record created successfully
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Validates user login credentials
+      description: Validates user login credentials and returns access-token on successful
+        authentication
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequestDto'
+        required: true
+      responses:
+        "400":
+          description: Invalid request body
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+        "200":
+          description: Authentication successfull
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TokenSuccessResponseDto'
+        "401":
+          description: Invalid credentials provided. Failed to authenticate user
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+  /api/v1/joke:
+    get:
+      tags:
+      - Joke Generator
+      summary: Generates a random unfunny joke
+      operationId: generate
+      responses:
+        "200":
+          description: Successfully generated random unfunny joke
+          headers:
+            X-Rate-Limit-Remaining:
+              description: The number of remaining API invocations available with
+                the user after processing the request.
+              required: true
+              style: simple
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JokeResponseDto'
+        "429":
+          description: API rate limit exhausted
+          headers:
+            X-Rate-Limit-Retry-After-Seconds:
+              description: Wait period in seconds before the user can invoke the API
+                endpoint
+              required: true
+              style: simple
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionResponseDto'
+components:
+  schemas:
+    PlanUpdationRequestDto:
+      title: PlanUpdationRequest
+      required:
+      - PlanId
+      type: object
+      properties:
+        PlanId:
+          type: string
+          description: plan to be attached with user record
+          format: uuid
+      writeOnly: true
+    ExceptionResponseDto:
+      title: Error
+      type: object
+      properties:
+        Status:
+          type: string
+        Description:
+          type: object
+      readOnly: true
+    UserCreationRequestDto:
+      title: UserCreationRequest
+      required:
+      - EmailId
+      - Password
+      - PlanId
+      type: object
+      properties:
+        EmailId:
+          type: string
+          description: email-id of user
+          example: hardik.behl7444@gmail.com
+        Password:
+          type: string
+          description: secure password to enable user login
+          example: somethingSecure
+        PlanId:
+          type: string
+          description: plan to be attached with new user record
+          format: uuid
+      writeOnly: true
+    UserLoginRequestDto:
+      title: UserLoginRequest
+      required:
+      - EmailId
+      - Password
+      type: object
+      properties:
+        EmailId:
+          type: string
+          description: email-id associated with user account already created in the
+            system
+          example: hardik.behl7444@gmail.com
+        Password:
+          type: string
+          description: password corresponding to provided email-id
+          example: somethingSecure
+      writeOnly: true
+    TokenSuccessResponseDto:
+      title: TokenSuccessResponse
+      type: object
+      properties:
+        AccessToken:
+          type: string
+      readOnly: true
+    PlanResponseDto:
+      title: Plan
+      type: object
+      properties:
+        Id:
+          type: string
+          format: uuid
+        Name:
+          type: string
+        LimitPerHour:
+          type: integer
+          format: int32
+      readOnly: true
+    JokeResponseDto:
+      title: Joke
+      type: object
+      properties:
+        Joke:
+          type: string
+      readOnly: true
+  securitySchemes:
+    Bearer_Authentication:
+      type: http
+      scheme: Bearer
+security:
+- Bearer_Authentication: []
