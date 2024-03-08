@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.behl.overseer.configuration.PublicEndpoint;
 import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.dto.TokenSuccessResponseDto;
 import com.behl.overseer.dto.UserCreationRequestDto;
@@ -31,6 +32,7 @@ public class AuthenticationController {
 
 	private final UserService userService;
 
+	@PublicEndpoint
 	@PostMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Creates a user record", description = "Creates a unique user record in the system corresponding to the provided information")
 	@ApiResponses(value = { 
@@ -47,6 +49,7 @@ public class AuthenticationController {
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
+	@PublicEndpoint
 	@PostMapping(value = "/auth/login")
 	@Operation(summary = "Validates user login credentials", description = "Validates user login credentials and returns access-token on successful authentication")
 	@ApiResponses(value = { 

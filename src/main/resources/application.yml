@@ -20,18 +20,11 @@ spring:
 com:
   behl:
     overseer:
-      unsecured:
-        api-path:
-          swagger-v3: true
-          post:
-            - /api/v1/user
-            - /api/v1/auth/login
-          get:
-            - /api/v1/plan 
       token:
         secret-key: ${JWT_SECRET_KEY}
         validity: 120
       open-api:
+        enabled: true
         api-version: 1.0.0
         title: Overseer
         description: Backend application imposing rate limit on private API endpoints using token bucket algorithm
