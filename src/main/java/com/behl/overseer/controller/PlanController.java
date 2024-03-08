@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.behl.overseer.configuration.BypassRateLimit;
+import com.behl.overseer.configuration.PublicEndpoint;
 import com.behl.overseer.dto.ExceptionResponseDto;
 import com.behl.overseer.dto.PlanResponseDto;
 import com.behl.overseer.dto.PlanUpdationRequestDto;
@@ -34,6 +35,7 @@ public class PlanController {
 
 	private final PlanService planService;
 
+	@PublicEndpoint
 	@GetMapping(value = "/plan", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(summary = "Retrieves all available plans", description = "Retrieves the list of available plans in the system")
 	@ApiResponse(responseCode = "200", description = "Plans retrieved successfully")
