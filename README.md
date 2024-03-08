@@ -7,6 +7,7 @@
 * [RateLimitingService.java](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/service/RateLimitingService.java)
 * [RateLimitFilter.java](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/filter/RateLimitFilter.java)
 * [BypassRateLimit.java](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/configuration/BypassRateLimit.java)
+* [PublicEndpoint.java](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/configuration/PublicEndpoint.java)
 * [Flyway Migration Scripts](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/resources/db/migration)
 
 ### Application Flow
@@ -58,22 +59,17 @@ All requests to private API endpoints are intercepted by the [JwtAuthenticationF
 
 Both the custom filters are added to the Spring Security filter chain and configured in the [SecurityConfiguration](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/configuration/SecurityConfiguration.java).
 
-Any API that needs to be made public can be configured in the active `.yml` file, the values are mapped to [ApiPathExclusionConfigurationProperties](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/configuration/ApiPathExclusionConfigurationProperties.java) and referenced by the application. Requests to the configured API paths are not evaluated by either of the filters with the logic being governed by [ApiEndpointSecurityInspector](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/utility/ApiEndpointSecurityInspector.java).
+Any API that needs to be made public can be annotated with [@PublicEndpoint](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/configuration/PublicEndpoint.java). Requests to the configured API paths will not evaluated by either of the filters with the logic being governed by [ApiEndpointSecurityInspector](https://github.com/hardikSinghBehl/rate-limiting-api-spring-boot/blob/main/src/main/java/com/behl/overseer/utility/ApiEndpointSecurityInspector.java).
 
-Below is a sample snippet declaring public API endpoints in `application.yml` file.
+Below is a sample controller method declared as public which will be exempted from authentication checks:
 
-```yaml
-com:
-  behl:
-    overseer:
-      unsecured:
-        api-path:
-          swagger-v3: true
-          post:
-            - /api/v1/user
-            - /api/v1/auth/login
-          get:
-            - /api/v1/plan 
+```java
+@PublicEndpoint
+@GetMapping(value = "/plan", produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<List<Plan>> retrieve() {
+    var response = planService.retrieve();
+    return ResponseEntity.ok(response);
+}
 ```
 
 ---
