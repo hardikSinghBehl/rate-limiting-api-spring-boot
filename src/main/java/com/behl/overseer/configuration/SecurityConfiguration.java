@@ -1,10 +1,5 @@
 package com.behl.overseer.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.behl.overseer.filter.JwtAuthenticationFilter;
 import com.behl.overseer.filter.RateLimitFilter;
+import com.behl.overseer.utility.ApiEndpointSecurityInspector;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -35,40 +31,29 @@ import lombok.SneakyThrows;
  *       within their corresponding {@link com.behl.overseer.entity.Plan} </li>
  * </ul>
  *
- * @see com.behl.overseer.configuration.ApiPathExclusionConfigurationProperties
  * @see com.behl.overseer.filter.JwtAuthenticationFilter
  * @see com.behl.overseer.filter.RateLimitFilter
+ * @see com.behl.overseer.utility.ApiEndpointSecurityInspector
  */
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties(ApiPathExclusionConfigurationProperties.class)
 public class SecurityConfiguration {
 
 	private final RateLimitFilter rateLimitFilter;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final ApiPathExclusionConfigurationProperties apiPathExclusionConfigurationProperties;
+	private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
 	
-	private static final List<String> SWAGGER_V3_PATHS = List.of("/swagger-ui**/**", "/v3/api-docs**/**");
-
 	@Bean
 	@SneakyThrows
 	public SecurityFilterChain configure(final HttpSecurity http)  {
-		final var unsecuredGetEndpoints = Optional.ofNullable(apiPathExclusionConfigurationProperties.getGet()).orElseGet(ArrayList::new);
-		final var unsecuredPostEndpoints = Optional.ofNullable(apiPathExclusionConfigurationProperties.getPost()).orElseGet(ArrayList::new);
-		
-		if (Boolean.TRUE.equals(apiPathExclusionConfigurationProperties.isSwaggerV3())) {
-			unsecuredGetEndpoints.addAll(SWAGGER_V3_PATHS);
-			apiPathExclusionConfigurationProperties.setGet(unsecuredGetEndpoints);
-		}
-		
 		http
 			.cors(corsConfigurer -> corsConfigurer.disable())
 			.csrf(csrfConfigurer -> csrfConfigurer.disable())
 			.sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(authManager -> {
 					authManager
-						.requestMatchers(HttpMethod.GET, unsecuredGetEndpoints.toArray(String[]::new)).permitAll()
-						.requestMatchers(HttpMethod.POST, unsecuredPostEndpoints.toArray(String[]::new)).permitAll()
+						.requestMatchers(HttpMethod.GET, apiEndpointSecurityInspector.getPublicGetEndpoints().toArray(String[]::new)).permitAll()
+						.requestMatchers(HttpMethod.POST, apiEndpointSecurityInspector.getPublicPostEndpoints().toArray(String[]::new)).permitAll()
 					.anyRequest().authenticated();
 				})
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
