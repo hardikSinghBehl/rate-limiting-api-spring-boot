@@ -26,4 +26,4 @@ jobs:
     - name: Run unit tests
       run: mvn test
     - name: Run integration tests
-      run: mvn integration-test
+      run: mvn integration-test verify

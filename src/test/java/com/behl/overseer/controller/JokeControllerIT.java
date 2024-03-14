@@ -38,11 +38,11 @@ class JokeControllerIT {
 	
 	@Test
 	@SneakyThrows
-	void generateJokeShouldThrowForbiddenForMissingAccessToken() {
+	void generateJokeShouldThrowUnauthorizedForMissingAccessToken() {
 		// invoke private joke endpoint without access token
 		final var apiPath = "/api/v1/joke";
 		mockMvc.perform(get(apiPath))
-			.andExpect(status().isForbidden());
+			.andExpect(status().isUnauthorized());
 	}
 	
 	@Test
